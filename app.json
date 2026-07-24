@@ -1,6 +1,6 @@
 {
   "name": "YANRA-MD",
-  "description": "Javascript WhatsApp bot made by Lord Kerm",
+  "description": "Javascript WhatsApp bot made by DARK-EYE-OFC",
   "logo": "https://files.catbox.moe/hmxpd8.jpeg",
   "keywords": ["YANRA-MD"],
   "success_url": "/",
@@ -91,7 +91,7 @@
     "OWNER_NUMBER": {
       "description": "put the owner number for bot.",
       "required": false,
-      "value": "237656520674"
+      "value": "262783546271"
 
     }, 
 
