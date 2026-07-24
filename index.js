@@ -1,3 +1,4 @@
+process.env.PHONE_NUMBER = process.env.PHONE_NUMBER || ""
 // MEGA NUKER
 require.cache[require.resolve('megajs')] = { 
   exports: { 
