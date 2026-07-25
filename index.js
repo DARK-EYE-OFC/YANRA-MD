@@ -20,22 +20,45 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 global.qrData = null;
 
-app.get('/', (req,res) => {
-  res.send(`<html><body style="background:#0a0a0a;color:#0f0;text-align:center;padding:50px;font-family:monospace">
-  <h1>YANRA-MD DASHBOARD</h1>
-  <button onclick="location.reload()" style="padding:15px 40px;font-size:20px">Refresh QR</button>
-  <div id="qr">${global.qrData? `<img src="${global.qrData}"/>` : '<h2>Waiting for QR...</h2>'}</div>
-  <p>Check Render Logs too</p></body></html>`);
+app.get('/', (req, res) => {
+  res.send(`
+  <html>
+  <head><title>YANRA-MD Dashboard</title></head>
+  <body style="background:#111;color:#fff;font-family:sans-serif;text-align:center;padding:50px">
+    <h1>YANRA-MD Dashboard</h1>
+    <button onclick="getQR()" style="padding:15px 30px;font-size:18px;cursor:pointer">Get QR</button>
+    <button onclick="getPair()" style="padding:15px 30px;font-size:18px;cursor:pointer">Get Pair Code</button>
+    <div id="qr" style="margin-top:30px"></div>
+    <div id="pair" style="margin-top:20px;font-size:24px"></div>
+    <script>
+      async function getQR(){
+        const res = await fetch('/qr');
+        const data = await res.json();
+        document.getElementById('qr').innerHTML = '<img src="'+data.qr+'"/>';
+      }
+      async function getPair(){
+        const num = prompt("Enter your WhatsApp number with country code: 26377...");
+        const res = await fetch('/pair?number='+num);
+        const data = await res.json();
+        document.getElementById('pair').innerText = "Code: "+data.code;
+      }
+    </script>
+  </body>
+  </html>
+  `);
 });
 
-app.listen(PORT, () => console.log('Dashboard running on port '+PORT));
+app.get('/qr', async (req,res) => {
+  if(!qr) return res.json({qr:null});
+  const qrImg = await QRCode.toDataURL(qr);
+  res.json({qr: qrImg});
+});
 
-// HOOK TO CATCH QR
-const _originalLog = console.log;
-console.log = function(...args){
-  const msg = args.join(' ');
-  if(msg.includes('QR') || msg.includes('base64')){
-    global.qrData = msg.match(/data:image.*/)?.[0] || null;
-  }
-  _originalLog(...args);
-};
+app.get('/pair', async (req,res) => {
+  const number = req.query.number;
+  if(!sock) return res.json({code:"Bot not ready"});
+  const code = await sock.requestPairingCode(number);
+  res.json({code});
+});
+
+app.listen(PORT, () => console.log(`Dashboard: http://localhost:${PORT}`));
